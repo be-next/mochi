@@ -1,7 +1,11 @@
+
 use crate::model::yaml::{ApiShapeYaml, ApiYaml, ResponseDataYaml, SystemFolder};
 use serde_yaml::from_str;
 use std::collections::HashMap;
 use std::fs;
+
+use crate::critical;
+
 
 pub struct ConfigurationFolder {
     folder: String,
@@ -14,7 +18,9 @@ impl ConfigurationFolder {
 
     pub fn load_systems(&self) -> Vec<SystemFolder> {
         let conf_dir = fs::read_dir(self.folder.clone())
-            .unwrap_or_else(|_| panic!("Could not read configuration folder '{}'", self.folder));
+            .unwrap_or_else(|err| {
+                critical!("Could not read configuration folder '{}': {}", self.folder, err);
+            });
 
         //
         let system_folders: Vec<SystemFolder> = conf_dir
@@ -25,15 +31,20 @@ impl ConfigurationFolder {
                 let system_name = system_path
                     .path()
                     .file_name()
-                    .unwrap_or_else(|| panic!("Could not get system name"))
+                    .unwrap_or_else(|| {
+                        critical!("Could not get system name.");
+                    })
                     .to_os_string()
                     .into_string()
                     .unwrap();
 
                 // Entries loaded per system folder (./config/system/*)
                 let system_entries = fs::read_dir(system_path.path())
-                    .unwrap_or_else(|_| {
-                        panic!("Could not read directory for system '{}'", system_name)
+                    .unwrap_or_else(|err| {
+                        critical!(
+                            "Could not read directory for system '{}: {}'",
+                            system_name,
+                            err)
                     })
                     .filter_map(|e| e.ok())
                     .collect::<Vec<_>>();
@@ -53,8 +64,11 @@ impl ConfigurationFolder {
                     .first()
                     .map(|data_path| {
                         fs::read_dir(data_path.path())
-                            .unwrap_or_else(|_| {
-                                panic!("Could not read data directory for system '{}'", system_name)
+                            .unwrap_or_else(|err| {
+                                critical!(
+                                    "Could not read data directory for system '{}: {}'",
+                                    system_name,
+                                    err)
                             })
                             .into_iter()
                             // Keeps files only
@@ -66,15 +80,19 @@ impl ConfigurationFolder {
                                 let filename = entity.file_name().into_string().unwrap();
 
                                 let file_content = fs::read_to_string(entity.path())
-                                    .unwrap_or_else(|_| {
-                                        panic!("Could not read file '{}'", filename)
+                                    .unwrap_or_else(|err| {
+                                        critical!(
+                                            "Could not read file '{}': {}",
+                                            filename,
+                                            err)
                                     });
 
                                 let yaml_response_data_file_content: ResponseDataYaml =
-                                    from_str(&*file_content).unwrap_or_else(|_| {
-                                        panic!(
-                                            "Could not decode response data yaml file '{}'",
-                                            filename
+                                    from_str(&*file_content).unwrap_or_else(|err| {
+                                        critical!(
+                                            "Could not decode response data yaml file '{}': {}",
+                                            filename,
+                                            err
                                         )
                                     });
 
@@ -99,8 +117,11 @@ impl ConfigurationFolder {
 
                         (
                             filename.clone(),
-                            fs::read_to_string(entity.path()).unwrap_or_else(|_| {
-                                panic!("Could not read file '{}'", filename.clone())
+                            fs::read_to_string(entity.path()).unwrap_or_else(|err| {
+                                critical!(
+                                    "Could not read file '{}': {}",
+                                    filename.clone(),
+                                    err)
                             }),
                         )
                     })

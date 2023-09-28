@@ -5,6 +5,7 @@ use axum::response::IntoResponse;
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
+use log::{debug, info};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct HttpRoute {
@@ -20,7 +21,8 @@ async fn compute_latency(latency: LatencyCore) {
 
 pub async fn handle_request(request: Request<Body>, rules: Vec<RuleCore>) -> Response<BoxBody> {
     for rule in rules.iter() {
-        dbg!(rule.clone());
+        debug!("{:?}", rule.clone());
+        info!("hit {} {}, {}", request.method(), request.uri(), rule);
         // All api headers must match the corresponding headers in the received request
         let matching_request = rule.headers.iter().all(|(key, value)| {
             request
@@ -66,7 +68,7 @@ impl SystemCore {
                         method: rule.endpoint.method.to_owned(),
                     };
 
-                    dbg!(rule.clone());
+                    debug!("{:?}", rule.clone());
 
                     rules_map
                         .entry(http_route)

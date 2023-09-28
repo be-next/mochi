@@ -1,6 +1,6 @@
 [package]
 name = "mochi"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,3 +17,4 @@ axum-prometheus = "0.3.3"
 anyhow = "1.0.71"
 fern = "0.6.2"
 log = "0.4.19"
+humantime = "2.1.0"

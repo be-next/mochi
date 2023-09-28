@@ -20,6 +20,7 @@ use axum_prometheus::PrometheusMetricLayer;
 use log::info;
 use std::env;
 use std::net::SocketAddr;
+use std::fs;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -28,6 +29,12 @@ async fn main() -> Result<()> {
     info!("Starting Mochi!");
 
     let configpath = env::var("CONFIG_PATH").unwrap_or("./config".to_string());
+    info!(
+        "Configuration path: {} (absolute path: {})",
+        configpath,
+        fs::canonicalize(&configpath)?.display()
+    );
+
     let (prometheus_layer, metric_handle) = PrometheusMetricLayer::pair();
     let system_folders: Vec<SystemFolder> = ConfigurationFolder::new(configpath).load_systems();
 
@@ -48,7 +55,7 @@ async fn main() -> Result<()> {
             let subrouter = map
                 .into_iter()
                 .fold(Router::new(), |acc, (endpoint, rules)| {
-                    // dbg!(endpoint.clone());
+                    info!("Set route: {:?}", endpoint.clone());
                     acc.route(
                         &endpoint.route,
                         on(MethodFilter::try_from(endpoint.clone().method).unwrap(), {

@@ -1,6 +1,7 @@
 use axum::http::uri::PathAndQuery;
 use axum::http::{Method, StatusCode};
 use std::collections::HashMap;
+use std::fmt::{self, Display, Formatter};
 
 #[derive(Clone, Debug)]
 pub enum LatencyCore {
@@ -25,6 +26,25 @@ pub struct RuleCore {
     pub status: StatusCode,
     pub format: String,
     pub body: Option<String>,
+}
+
+impl Display for RuleCore {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "Endpoint: {} ", self.endpoint.route)?;
+
+        for (key, value) in &self.headers {
+            write!(f, "{}: {} ", key, value)?;
+        }
+
+        write!(f, "Status: {}, ", self.status)?;
+        write!(f, "Format: {}, ", self.format)?;
+
+        if let Some(latency) = &self.latency {
+            write!(f, "Latency: {:?} ", latency.clone())?;
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug)]
