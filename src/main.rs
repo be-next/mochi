@@ -55,7 +55,7 @@ async fn main() -> Result<()> {
             let subrouter = map
                 .into_iter()
                 .fold(Router::new(), |acc, (endpoint, rules)| {
-                    info!("Set route: {:?}", endpoint.clone());
+                    info!("Init route: {:?}", endpoint.clone());
                     acc.route(
                         &endpoint.route,
                         on(MethodFilter::try_from(endpoint.clone().method).unwrap(), {
