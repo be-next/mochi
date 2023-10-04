@@ -5,7 +5,7 @@ use axum::response::IntoResponse;
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
-use log::{debug, info};
+use log::{debug, info, warn};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct HttpRoute {
@@ -46,6 +46,7 @@ pub async fn handle_request(request: Request<Body>, rules: Vec<RuleCore>) -> Res
                 .unwrap();
         }
     }
+    warn!("No route match: {}", request.uri()); // never reached :/
     return StatusCode::NOT_FOUND.into_response();
 }
 

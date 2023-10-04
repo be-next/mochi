@@ -28,6 +28,11 @@ pub struct RuleCore {
     pub body: Option<String>,
 }
 
+/// Implements the `Display` trait for `RuleCore`.
+///
+/// This allows for a human-readable representation of the `RuleCore` struct.
+/// The displayed format includes the endpoint's route, a list of headers, the status code,
+/// the response format, and optionally the latency if it is defined.
 impl Display for RuleCore {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Endpoint: {} ", self.endpoint.route)?;

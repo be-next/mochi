@@ -3,6 +3,7 @@ mod file;
 mod logger;
 mod model;
 mod routes;
+mod utils;
 
 use crate::extractor::build_all;
 use crate::file::ConfigurationFolder;
@@ -10,6 +11,7 @@ use crate::logger::setup_logger;
 use crate::model::core::SystemCore;
 use crate::model::yaml::SystemFolder;
 use crate::routes::handle_request;
+use crate::utils::shutdown_signal;
 
 use anyhow::{Context, Result};
 use axum::body::Body;
@@ -17,6 +19,7 @@ use axum::http::Request;
 use axum::routing::{get, on, MethodFilter};
 use axum::Router;
 use axum_prometheus::PrometheusMetricLayer;
+// use tower_http::trace::TraceLayer;
 use log::info;
 use std::env;
 use std::net::SocketAddr;
@@ -73,6 +76,7 @@ async fn main() -> Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .context("Starting http server")
 }
