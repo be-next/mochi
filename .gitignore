@@ -1,4 +1,5 @@
 .DS_Store
 /target
+/logs
 .idea
 *.log
