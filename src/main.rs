@@ -8,7 +8,7 @@ mod utils;
 use crate::extractor::build_all;
 use crate::file::ConfigurationFolder;
 use crate::logger::{
-    setup_logger,
+    // setup_logger,
     init_global_subscriber
 };
 use crate::model::core::SystemCore;
